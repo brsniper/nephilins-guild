@@ -4,11 +4,12 @@ import {
   Search, User, X, Gift, Calendar, LayoutDashboard, Coins, Ticket, CheckCircle2, ArrowLeft,
   Zap, History, BookOpen, UserPlus2, FileDown, FileUp, LogOut, LogIn
 } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
 import { GoogleGenAI } from "@google/genai";
 import { PT, Player, Role, PTColor, PT_COLORS, Reward, AttendanceSession, RewardType, WarType } from './types';
 import { INITIAL_DATA, INITIAL_CLASSES } from './constants';
 import { PTCard } from './components/PTCard';
-import { useServerSync } from './useServerSync';
+import { useDataSync } from './useDataSync';
 
 type Tab = 'management' | 'rewards' | 'presence';
 
@@ -132,18 +133,24 @@ const App: React.FC = () => {
   useEffect(() => { if (guildLogo) localStorage.setItem('nephilins_logo', guildLogo); }, [guildLogo]);
 
   // Server Sync
-  const { sendDataUpdate } = useServerSync((data) => {
-    if (data.pts) setPts(data.pts);
-    if (data.classes) setClasses(data.classes);
-    if (data.rewards) setRewards(data.rewards);
-    if (data.presence) setPresence(data.presence);
-    if (data.guildLogo) setGuildLogo(data.guildLogo);
-  });
+  const { syncData } = useDataSync(
+    { pts, classes, rewards, presence, guildLogo },
+    (data) => {
+      if (data.pts) setPts(data.pts);
+      if (data.classes) setClasses(data.classes);
+      if (data.rewards) setRewards(data.rewards);
+      if (data.presence) setPresence(data.presence);
+      if (data.logo) setGuildLogo(data.logo);
+    },
+    isLoggedIn
+  );
 
-  // Enviar atualizacoes para o servidor
+  // Sincronizar dados quando mudam
   useEffect(() => {
-    sendDataUpdate({ pts, classes, rewards, presence, guildLogo });
-  }, [pts, classes, rewards, presence, guildLogo, sendDataUpdate]);
+    if (isLoggedIn) {
+      syncData({ pts, classes, rewards, presence, logo: guildLogo });
+    }
+  }, [pts, classes, rewards, presence, guildLogo, isLoggedIn, syncData]);
 
   useEffect(() => {
     if (classes.length > 0 && !newPlayerData.className) {
