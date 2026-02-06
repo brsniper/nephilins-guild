@@ -480,7 +480,7 @@ const App: React.FC = () => {
           <div className="flex items-center gap-4 w-full lg:w-auto">
             <div className="relative group">
               <div className="bg-slate-800 rounded-2xl glow-cyan overflow-hidden w-14 h-14 flex items-center justify-center border border-sky-500/30 transition-all group-hover:scale-105">
-                {guildLogo ? <img src={guildLogo} className="w-full h-full object-cover" /> : <Shield className="text-sky-400" size={32} />}
+                <Shield className="text-sky-400" size={32} />
                 {isGeneratingLogo && <div className="absolute inset-0 bg-black/60 flex items-center justify-center"><Loader2 className="animate-spin text-sky-400" /></div>}
               </div>
               {isLoggedIn && (
